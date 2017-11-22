@@ -1,7 +1,6 @@
 __author__ = "Hannes Hoettinger"
 
 import cv2                   #open cv2
-import cv2.cv as cv          #open cv
 import time
 import numpy as np
 from threading import Thread
@@ -63,10 +62,10 @@ def transformation(imCalRGB, calData, tx1, ty1, tx2, ty2, tx3, ty3, tx4, ty4):
     drawBoard = Draw()
     new_image = drawBoard.drawBoard(new_image, calData)
 
-    cv2.circle(new_image, (int(newtop[0]), int(newtop[1])), 2, cv.CV_RGB(255, 255, 0), 2, 4)
-    cv2.circle(new_image, (int(newbottom[0]), int(newbottom[1])), 2, cv.CV_RGB(255, 255, 0), 2, 4)
-    cv2.circle(new_image, (int(newleft[0]), int(newleft[1])), 2, cv.CV_RGB(255, 255, 0), 2, 4)
-    cv2.circle(new_image, (int(newright[0]), int(newright[1])), 2, cv.CV_RGB(255, 255, 0), 2, 4)
+    cv2.circle(new_image, (int(newtop[0]), int(newtop[1])), 2, (255, 255, 0), 2, 4)
+    cv2.circle(new_image, (int(newbottom[0]), int(newbottom[1])), 2, (255, 255, 0), 2, 4)
+    cv2.circle(new_image, (int(newleft[0]), int(newleft[1])), 2, (255, 255, 0), 2, 4)
+    cv2.circle(new_image, (int(newright[0]), int(newright[1])), 2, (255, 255, 0), 2, 4)
 
     cv2.imshow('manipulation', new_image)
 
@@ -158,7 +157,7 @@ def findEllipse(thresh2, image_proc_img):
                 b = b / 2
 
                 cv2.ellipse(image_proc_img, (int(x), int(y)), (int(a), int(b)), int(angle), 0.0, 360.0,
-                            cv.CV_RGB(255, 0, 0))
+                            (255, 0, 0))
         # corrupted file
         except:
             print "error"
@@ -354,10 +353,10 @@ def getTransformationPoints(image_proc_img, mount):
         source_points.append(intersectp_s[left_idx])  # left
         source_points.append(intersectp_s[right_idx])  # right
 
-    cv2.circle(image_proc_img, (int(source_points[0][0]), int(source_points[0][1])), 3, cv.CV_RGB(255, 0, 0), 2, 8)
-    cv2.circle(image_proc_img, (int(source_points[1][0]), int(source_points[1][1])), 3, cv.CV_RGB(255, 0, 0), 2, 8)
-    cv2.circle(image_proc_img, (int(source_points[2][0]), int(source_points[2][1])), 3, cv.CV_RGB(255, 0, 0), 2, 8)
-    cv2.circle(image_proc_img, (int(source_points[3][0]), int(source_points[3][1])), 3, cv.CV_RGB(255, 0, 0), 2, 8)
+    cv2.circle(image_proc_img, (int(source_points[0][0]), int(source_points[0][1])), 3, (255, 0, 0), 2, 8)
+    cv2.circle(image_proc_img, (int(source_points[1][0]), int(source_points[1][1])), 3, (255, 0, 0), 2, 8)
+    cv2.circle(image_proc_img, (int(source_points[2][0]), int(source_points[2][1])), 3, (255, 0, 0), 2, 8)
+    cv2.circle(image_proc_img, (int(source_points[3][0]), int(source_points[3][1])), 3, (255, 0, 0), 2, 8)
 
     winName2 = "th circles?"
     cv2.namedWindow(winName2, cv2.CV_WINDOW_AUTOSIZE)

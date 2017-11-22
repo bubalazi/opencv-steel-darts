@@ -3,14 +3,12 @@ __author__ = "Hannes Hoettinger"
 import numpy as np
 import cv2
 import time
-import cv2.cv as cv
 import math
 import pickle
 
-img = cv2.imread("D:\Projekte\PycharmProjects\DartsScorer\Darts\Dartboard_2.png")
-img2 = cv2.imread("D:\Projekte\PycharmProjects\DartsScorer\Darts\Dartboard_3.png")
-
-vidcap = cv2.VideoCapture("C:\Users\hanne\OneDrive\Projekte\GitHub\darts\Darts\Darts_Testvideo_9_1.mp4")
+img = cv2.imread("Darts/Dartboard_2.png")
+img2 = cv2.imread("Darts/Dartboard_3.png")
+vidcap = cv2.VideoCapture("Darts/Darts_Testvideo_9_1.mp4")
 from_video = True
 
 DEBUG = True
@@ -346,7 +344,7 @@ def getDart():
 
             # find left and rightmost corners
             rows,cols = dimg.shape[:2]
-            [vx,vy,x,y] = cv2.fitLine(corners_new,cv.CV_DIST_HUBER, 0,0.1,0.1)
+            [vx,vy,x,y] = cv2.fitLine(corners_new,cv2.DIST_HUBER, 0,0.1,0.1)
             lefty = int((-x*vy/vx) + y)
             righty = int(((cols-x)*vy/vx)+y)
 
