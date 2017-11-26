@@ -491,7 +491,7 @@ def calibrate(cam_R, cam_L):
 if __name__ == '__main__':
     print "Welcome to darts!"
 
-    cam_R = VideoStream(src=2).start()
-    cam_L = VideoStream(src=3).start()
+    cam_R = VideoStream(src='Darts/Darts_Testvideo_9.mp4').start()
+    cam_L = VideoStream(src='Darts/Darts_Testvideo_9_1.mp4').start()
 
     calibrate(cam_R, cam_L)
