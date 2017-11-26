@@ -1,6 +1,7 @@
 __author__ = "Hannes Hoettinger"
 
-import cv2                   #open cv2
+import os
+import cv2
 import time
 import numpy as np
 from threading import Thread
@@ -28,13 +29,11 @@ winName5 = "Choose Ring"
 def nothing(x):
     pass
 
-
 def destinationPoint(i, calData):
     dstpoint = [(calData.center_dartboard[0] + calData.ring_radius[5] * math.cos((0.5 + i) * calData.sectorangle)),
                 (calData.center_dartboard[1] + calData.ring_radius[5] * math.sin((0.5 + i) * calData.sectorangle))]
 
     return dstpoint
-
 
 def transformation(imCalRGB, calData, tx1, ty1, tx2, ty2, tx3, ty3, tx4, ty4):
 
@@ -491,7 +490,7 @@ def calibrate(cam_R, cam_L):
 if __name__ == '__main__':
     print "Welcome to darts!"
 
-    cam_R = VideoStream(src='Darts/Darts_Testvideo_9.mp4').start()
-    cam_L = VideoStream(src='Darts/Darts_Testvideo_9_1.mp4').start()
+    cam_R = VideoStream(src=os.path.join("Darts","Darts_Testvideo_9.mp4")).start()
+    cam_L = VideoStream(src=os.path.join("Darts","Darts_Testvideo_9_1.mp4")).start()
 
     calibrate(cam_R, cam_L)

@@ -1,14 +1,17 @@
 __author__ = "Hannes Hoettinger"
 
+import os
 import numpy as np
 import cv2
 import time
 import math
 import pickle
 
-img = cv2.imread("Darts/Dartboard_2.png")
-img2 = cv2.imread("Darts/Dartboard_3.png")
-vidcap = cv2.VideoCapture("Darts/Darts_Testvideo_9_1.mp4")
+from MathFunctions import dist
+
+img = cv2.imread(os.path.join("Darts","Dartboard_2.png"))
+img2 = cv2.imread(os.path.join("Darts","Dartboard_3.png"))
+vidcap = cv2.VideoCapture(os.path.join("Darts","Darts_Testvideo_9_1.mp4"))
 from_video = True
 
 DEBUG = True
@@ -68,69 +71,41 @@ def drawBoard():
 
     return raw_loc_mat
 
-def dist(x1,y1, x2,y2, x3,y3): # x3,y3 is the point
-    px = x2-x1
-    py = y2-y1
-
-    something = px*px + py*py
-
-    u =  ((x3 - x1) * px + (y3 - y1) * py) / float(something)
-
-    if u > 1:
-        u = 1
-    elif u < 0:
-        u = 0
-
-    x = x1 + u * px
-    y = y1 + u * py
-
-    dx = x - x3
-    dy = y - y3
-
-    # Note: If the actual distance does not matter,
-    # if you only want to compare what this function
-    # returns to other results of this function, you
-    # can just return the squared distance instead
-    # (i.e. remove the sqrt) to gain a little performance
-
-    dist = math.sqrt(dx*dx + dy*dy)
-
-    return dist
 
 def DartLocation(x_coord,y_coord):
     try:
 
-            #start a fresh set of points
-            points = []
+        #start a fresh set of points
+        points = []
 
-            calFile = open('calibrationData.pkl', 'rb')
-            calData = CalibrationData()
-            calData = pickle.load(calFile)
-            #load the data into the global variables
-            global transformation_matrix
-            transformation_matrix = calData.transformationMatrix
-            global ring_radius
-            ring_radius.append(calData.ring_radius[0])
-            ring_radius.append(calData.ring_radius[1])
-            ring_radius.append(calData.ring_radius[2])
-            ring_radius.append(calData.ring_radius[3])
-            ring_radius.append(calData.ring_radius[4])
-            ring_radius.append(calData.ring_radius[5])  # append the 6 ring radii
-            global center_dartboard
-            center_dartboard = calData.center_dartboard
+        calFile = open('calibrationData.pkl', 'rb')
+        calData = CalibrationData()
+        calData = pickle.load(calFile)
+        #load the data into the global variables
+        global transformation_matrix
+        transformation_matrix = calData.transformationMatrix
+        global ring_radius
+        ring_radius.append(calData.ring_radius[0])
+        ring_radius.append(calData.ring_radius[1])
+        ring_radius.append(calData.ring_radius[2])
+        ring_radius.append(calData.ring_radius[3])
+        ring_radius.append(calData.ring_radius[4])
+        ring_radius.append(calData.ring_radius[5])  # append the 6 ring radii
+        global center_dartboard
+        center_dartboard = calData.center_dartboard
 
-            #close the file once we are done reading the data
-            calFile.close()
-            #print "Raw dart location:"
-            #print x_coord,y_coord
+        #close the file once we are done reading the data
+        calFile.close()
+        #print "Raw dart location:"
+        #print x_coord,y_coord
 
-            # transform only the hit point with the saved transformation matrix
-            dart_loc_temp = np.array([[x_coord, y_coord]], dtype="float32")
-            dart_loc_temp = np.array([dart_loc_temp])
-            dart_loc = cv2.perspectiveTransform(dart_loc_temp, transformation_matrix)
-            new_dart_loc = tuple(dart_loc.reshape(1, -1)[0])
+        # transform only the hit point with the saved transformation matrix
+        dart_loc_temp = np.array([[x_coord, y_coord]], dtype="float32")
+        dart_loc_temp = np.array([dart_loc_temp])
+        dart_loc = cv2.perspectiveTransform(dart_loc_temp, transformation_matrix)
+        new_dart_loc = tuple(dart_loc.reshape(1, -1)[0])
 
-            return new_dart_loc
+        return new_dart_loc
 
     #system not calibrated
     except AttributeError as err1:
@@ -146,104 +121,104 @@ def DartLocation(x_coord,y_coord):
 #Returns dartThrow (score, multiplier, angle, magnitude) based on x,y location
 def DartRegion(dart_loc):
     try:
-            height = 800
-            width = 800
+        height = 800
+        width = 800
 
-            global dartInfo
+        global dartInfo
 
-            dartInfo = dartThrow()
+        dartInfo = dartThrow()
 
-            #find the magnitude and angle of the dart
-            vx = (dart_loc[0] - center_dartboard[0])
-            vy = (center_dartboard[1] - dart_loc[1])
+        #find the magnitude and angle of the dart
+        vx = (dart_loc[0] - center_dartboard[0])
+        vy = (center_dartboard[1] - dart_loc[1])
 
-            # reference angle for atan2 conversion
-            ref_angle = 81
+        # reference angle for atan2 conversion
+        ref_angle = 81
 
-            dart_magnitude = math.sqrt(math.pow(vx, 2) + math.pow(vy, 2))
-            dart_angle = math.fmod(((math.atan2(vy,vx) * 180/math.pi) + 360 - ref_angle), 360)
+        dart_magnitude = math.sqrt(math.pow(vx, 2) + math.pow(vy, 2))
+        dart_angle = math.fmod(((math.atan2(vy,vx) * 180/math.pi) + 360 - ref_angle), 360)
 
-            dartInfo.magnitude = dart_magnitude
-            dartInfo.angle = dart_angle
+        dartInfo.magnitude = dart_magnitude
+        dartInfo.angle = dart_angle
 
-            angleDiffMul = int((dart_angle) / 18.0)
+        angleDiffMul = int((dart_angle) / 18.0)
 
-            print vx, vy, dart_angle
+        print vx, vy, dart_angle
 
-            #starting from the 20 points
-            if angleDiffMul == 19:
-                dartInfo.base = 20
-            elif angleDiffMul == 0:
-                dartInfo.base = 5
-            elif angleDiffMul == 1:
-                dartInfo.base = 12
-            elif angleDiffMul == 2:
-                dartInfo.base = 9
-            elif angleDiffMul == 3:
-                dartInfo.base = 14
-            elif angleDiffMul == 4:
-                dartInfo.base = 11
-            elif angleDiffMul == 5:
-                dartInfo.base = 8
-            elif angleDiffMul == 6:
-                dartInfo.base = 16
-            elif angleDiffMul == 7:
-                dartInfo.base = 7
-            elif angleDiffMul == 8:
-                dartInfo.base = 19
-            elif angleDiffMul == 9:
-                dartInfo.base = 3
-            elif angleDiffMul == 10:
-                dartInfo.base = 17
-            elif angleDiffMul == 11:
-                dartInfo.base = 2
-            elif angleDiffMul == 12:
-                dartInfo.base = 15
-            elif angleDiffMul == 13:
-                dartInfo.base = 10
-            elif angleDiffMul == 14:
-                dartInfo.base = 6
-            elif angleDiffMul == 15:
-                dartInfo.base = 13
-            elif angleDiffMul == 16:
-                dartInfo.base = 4
-            elif angleDiffMul == 17:
-                dartInfo.base = 18
-            elif angleDiffMul == 18:
-                dartInfo.base = 1
-            else:
-                #something went wrong
-                dartInfo.base = -300
+        #starting from the 20 points
+        if angleDiffMul == 19:
+            dartInfo.base = 20
+        elif angleDiffMul == 0:
+            dartInfo.base = 5
+        elif angleDiffMul == 1:
+            dartInfo.base = 12
+        elif angleDiffMul == 2:
+            dartInfo.base = 9
+        elif angleDiffMul == 3:
+            dartInfo.base = 14
+        elif angleDiffMul == 4:
+            dartInfo.base = 11
+        elif angleDiffMul == 5:
+            dartInfo.base = 8
+        elif angleDiffMul == 6:
+            dartInfo.base = 16
+        elif angleDiffMul == 7:
+            dartInfo.base = 7
+        elif angleDiffMul == 8:
+            dartInfo.base = 19
+        elif angleDiffMul == 9:
+            dartInfo.base = 3
+        elif angleDiffMul == 10:
+            dartInfo.base = 17
+        elif angleDiffMul == 11:
+            dartInfo.base = 2
+        elif angleDiffMul == 12:
+            dartInfo.base = 15
+        elif angleDiffMul == 13:
+            dartInfo.base = 10
+        elif angleDiffMul == 14:
+            dartInfo.base = 6
+        elif angleDiffMul == 15:
+            dartInfo.base = 13
+        elif angleDiffMul == 16:
+            dartInfo.base = 4
+        elif angleDiffMul == 17:
+            dartInfo.base = 18
+        elif angleDiffMul == 18:
+            dartInfo.base = 1
+        else:
+            #something went wrong
+            dartInfo.base = -300
 
-            #Calculating multiplier (and special cases for Bull's Eye):
-            for i in range(0, len(ring_radius)):
-                #Find the ring that encloses the dart
-                if dartInfo.magnitude <= ring_radius[i]:
-                    #Bull's eye, adjust base score
-                    if i == 0:
-                        dartInfo.base = 25
-                        dartInfo.multiplier = 2
-                    elif i == 1:
-                        dartInfo.base = 25
-                        dartInfo.multiplier = 1
-                    #triple ring
-                    elif i == 3:
-                        dartInfo.multiplier = 3
-                    #double ring
-                    elif i == 5:
-                        dartInfo.multiplier = 2
-                    #single
-                    elif i == 2 or i == 4:
-                        dartInfo.multiplier = 1
-                    #finished calculation
-                    break
+        #Calculating multiplier (and special cases for Bull's Eye):
+        for i in range(0, len(ring_radius)):
+            #Find the ring that encloses the dart
+            if dartInfo.magnitude <= ring_radius[i]:
+                #Bull's eye, adjust base score
+                if i == 0:
+                    dartInfo.base = 25
+                    dartInfo.multiplier = 2
+                elif i == 1:
+                    dartInfo.base = 25
+                    dartInfo.multiplier = 1
+                #triple ring
+                elif i == 3:
+                    dartInfo.multiplier = 3
+                #double ring
+                elif i == 5:
+                    dartInfo.multiplier = 2
+                #single
+                elif i == 2 or i == 4:
+                    dartInfo.multiplier = 1
+                #finished calculation
+                break
 
-            #miss
-            if dartInfo.magnitude > ring_radius[5]:
-                dartInfo.base = 0
-                dartInfo.multiplier = 0
+        #miss
+        if dartInfo.magnitude > ring_radius[5]:
+            dartInfo.base = 0
+            dartInfo.multiplier = 0
 
-            return dartInfo
+        return dartInfo
 
 
     #system not calibrated

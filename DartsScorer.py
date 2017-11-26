@@ -17,7 +17,7 @@ scoreplayer2 = 501
 #cam = cv2.VideoCapture(2)
 #cam.set(cv.CV_CAP_PROP_FRAME_WIDTH, 1920)
 #cam.set(cv.CV_CAP_PROP_FRAME_HEIGHT, 1080)
-cam = VideoStream(src=2).start()
+cam = VideoStream(src='Darts/Darts_Testvideo_9.mp4').start()
 
 points = []
 
@@ -138,7 +138,8 @@ def start_imag_proc():
 
     # Read first image twice (issue somewhere) to start loop:
     success, image = cam.read()
-    t = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    pdb.set_trace()
+    t = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # wait for camera
     time.sleep(0.1)
     success, image = cam.read()
@@ -341,7 +342,7 @@ root = Tk()
 back_gnd = Canvas(root)
 back_gnd.pack(expand=True, fill='both')
 
-back_gnd_image = PhotoImage(file="C:\Users\hanne\OneDrive\Projekte\GitHub\darts\Dartboard.gif")
+back_gnd_image = PhotoImage(file="Dartboard.gif")
 back_gnd.create_image(0, 0, anchor='nw', image=back_gnd_image)
 
 # Create Buttons
