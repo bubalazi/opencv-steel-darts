@@ -134,7 +134,7 @@ def findEllipse(thresh2, image_proc_img):
 
     Ellipse = EllipseDef()
 
-    contours, hierarchy = cv2.findContours(thresh2, 1, 2)
+    _, contours, hierarchy = cv2.findContours(thresh2, 1, 2)
 
     minThresE = 200000/4
     maxThresE = 1000000/4
@@ -151,7 +151,6 @@ def findEllipse(thresh2, image_proc_img):
                 angle = ellipse[2]
 
                 center_ellipse = (x, y)
-
                 a = a / 2
                 b = b / 2
 
